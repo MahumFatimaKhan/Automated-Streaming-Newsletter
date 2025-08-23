@@ -7,6 +7,7 @@ An automated Flask-based web application that generates personalized streaming n
 
 ## Features
 
+
 - 📅 **Date Range Selection**: Choose content for specific date ranges (up to 30 days)
 - 🔍 **Automated Web Scraping**: Scrapes TVInsider.com for streaming content
 - 🤖 **AI-Powered Content**: Generates taglines and introductions using OpenAI GPT
