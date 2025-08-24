@@ -217,9 +217,6 @@ For large date ranges:
 - GitHub: [@mahumfatimakhan](https://github.com/mahumfatimakhan)
 - LinkedIn: [Mahum Fatima Khan](https://www.linkedin.com/in/mahum-fatima-khan-51ab981a8/)
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
