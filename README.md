@@ -28,6 +28,9 @@ The **Automated Streaming Newsletter** is an innovative Flask-based web applicat
 3. **Cost-Effective**: Reduces the need for dedicated content writers and designers
 4. **Error-Free**: Automated processes eliminate human errors in link generation and formatting
 5. **Responsive Design**: Generated newsletters are automatically optimized for all devices
+   
+<img width="253" height="648" alt="Screenshot 2025-08-24 at 8 23 57 AM" src="https://github.com/user-attachments/assets/7bf5e276-f758-414b-81b8-822b2ca2a182" />
+
 
 ---
 
