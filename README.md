@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # Automated-Streaming-Newsletter
-=======
-# Streaming Newsletter Generator
-
 An automated Flask-based web application that generates personalized streaming newsletters by scraping TV show and movie data, creating AI-generated content and banners, and outputting professional HTML newsletters.
 
 ## Features
@@ -243,4 +239,3 @@ This project is proprietary software. All rights reserved.
 ---
 
 **Note**: This application requires valid API keys to function. Ensure you have the necessary subscriptions for OpenAI and Flux APIs before use.
->>>>>>> fe6babb (Read Me File)
