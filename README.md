@@ -28,23 +28,9 @@ The **Automated Streaming Newsletter** is an innovative Flask-based web applicat
 3. **Cost-Effective**: Reduces the need for dedicated content writers and designers
 4. **Error-Free**: Automated processes eliminate human errors in link generation and formatting
 5. **Responsive Design**: Generated newsletters are automatically optimized for all devices
-   
-<table>
-  <tr>
-    <td>
-      <img width="253" height="648" alt="Screenshot" src="https://github.com/user-attachments/assets/7bf5e276-f758-414b-81b8-822b2ca2a182" />
-    </td>
-    <td>
-      <!-- GitHub doesn't support direct video playback, but you can show a link or a gif -->
-      <video width="320" height="240" controls>
-        <source src="https://github.com/user-attachments/assets/8c341c04-283b-4f36-9833-1e312d81f9f7" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-    </td>
-  </tr>
-</table>
+<img width="253" height="648" alt="Screenshot 2025-08-24 at 8 23 57 AM" src="https://github.com/user-attachments/assets/7bf5e276-f758-414b-81b8-822b2ca2a182" />
 
-
+https://github.com/user-attachments/assets/8c341c04-283b-4f36-9833-1e312d81f9f7"
 
 
 
