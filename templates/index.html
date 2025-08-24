@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streaming Newsletter Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #3B108E 0%, #6d3db9 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .steps-indicator {
+            display: flex;
+            justify-content: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #dee2e6;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .step.active .step-number {
+            background: #6d3db9;
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background: #28a745;
+            color: white;
+        }
+        
+        .step-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .step.active .step-label {
+            color: #6d3db9;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .step-content {
+            display: none;
+        }
+        
+        .step-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input[type="date"]:focus {
+            outline: none;
+            border-color: #6d3db9;
+        }
+        
+        .date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: #6d3db9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5a2fa2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(109, 61, 185, 0.3);
+        }
+        
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6d3db9;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .results-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .selection-grid {
+            display: grid;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .selection-card {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .selection-card:hover {
+            border-color: #6d3db9;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .selection-card input[type="radio"] {
+            margin-right: 10px;
+        }
+        
+        .selection-card.selected {
+            border-color: #6d3db9;
+            background: #f3f1ff;
+        }
+        
+        .banner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .banner-card {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .banner-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .banner-card.selected {
+            border-color: #6d3db9;
+            box-shadow: 0 0 0 3px rgba(109, 61, 185, 0.2);
+        }
+        
+        .banner-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .preview-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .preview-iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .content-selection-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .content-selection-controls #selectedCount {
+            margin-left: auto;
+            font-weight: 600;
+            color: #6d3db9;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            margin: 20px 0;
+        }
+        
+        .content-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .content-item:hover {
+            border-color: #6d3db9;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content-item.selected {
+            background: #f3f1ff;
+            border-color: #6d3db9;
+        }
+        
+        .content-item input[type="checkbox"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .content-item-image {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+        
+        .content-item-details {
+            flex: 1;
+        }
+        
+        .content-item-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .content-item-channel {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .content-item-date {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Streaming Newsletter Generator</h1>
+            <p>Create engaging newsletters with AI-powered content and beautiful banners</p>
+        </div>
+        
+        <div class="steps-indicator">
+            <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">Date Range</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">Scrape Content</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">Select Content</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-label">Select Tagline</div>
+            </div>
+            <div class="step" data-step="5">
+                <div class="step-number">5</div>
+                <div class="step-label">Select Introduction</div>
+            </div>
+            <div class="step" data-step="6">
+                <div class="step-number">6</div>
+                <div class="step-label">Choose Banner</div>
+            </div>
+            <div class="step" data-step="7">
+                <div class="step-number">7</div>
+                <div class="step-label">Preview & Download</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="errorMessage"></div>
+            
+            <!-- Step 1: Date Range Selection -->
+            <div class="step-content active" id="step1">
+                <h2>Select Date Range</h2>
+                <p>Choose the date range for your newsletter content (maximum 30 days)</p>
+                
+                <div class="date-inputs">
+                    <div class="form-group">
+                        <label for="startDate">Start Date</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">End Date</label>
+                        <input type="date" id="endDate" required>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn" onclick="startScraping()">Start Scraping</button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Scraping Progress -->
+            <div class="step-content" id="step2">
+                <h2>Scraping Content</h2>
+                <div class="loading" id="scrapingLoader">
+                    <div class="spinner"></div>
+                    <p>Scraping TVInsider.com for streaming content...</p>
+                    <p style="margin-top: 10px; color: #666; font-size: 14px;">This may take up to 30 seconds</p>
+                </div>
+                <div class="results" id="scrapingResults">
+                    <div class="results-summary">
+                        <h3>Scraping Complete!</h3>
+                        <p>Found <span id="contentCount">0</span> items for your selected date range</p>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="goToStep(1)">Back</button>
+                        <button class="btn" onclick="goToStep(3)">Select Content</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 3: Content Selection -->
+            <div class="step-content" id="step3">
+                <h2>Select Content for Newsletter</h2>
+                <p>Choose which shows and movies to include in your newsletter</p>
+                
+                <div class="content-selection-controls">
+                    <button class="btn btn-secondary" onclick="selectAllContent()">Select All</button>
+                    <button class="btn btn-secondary" onclick="deselectAllContent()">Deselect All</button>
+                    <span id="selectedCount">0 selected</span>
+                </div>
+                
+                <div class="content-grid" id="contentGrid">
+                    <!-- Content items will be populated here -->
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">Back</button>
+                    <button class="btn" onclick="saveSelectedContent()">Continue with Selected</button>
+                </div>
+            </div>
+            
+            <!-- Step 4: Tagline Selection -->
+            <div class="step-content" id="step4">
+                <h2>Select a Tagline</h2>
+                <p>Choose the perfect tagline for your newsletter</p>
+                
+                <div class="loading" id="taglineLoader">
+                    <div class="spinner"></div>
+                    <p>Generating creative taglines with AI...</p>
+                </div>
+                
+                <div class="selection-grid" id="taglineOptions"></div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">Back</button>
+                    <button class="btn" onclick="regenerateTaglines()">Regenerate</button>
+                    <button class="btn" onclick="generateIntroductions()">Continue</button>
+                </div>
+            </div>
+            
+            <!-- Step 5: Introduction Selection -->
+            <div class="step-content" id="step5">
+                <h2>Select an Introduction</h2>
+                <p>Choose the introduction text for your newsletter</p>
+                
+                <div class="loading" id="introLoader">
+                    <div class="spinner"></div>
+                    <p>Generating engaging introductions with AI...</p>
+                </div>
+                
+                <div class="selection-grid" id="introOptions"></div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(4)">Back</button>
+                    <button class="btn" onclick="regenerateIntroductions()">Regenerate</button>
+                    <button class="btn" onclick="generateBanners()">Continue</button>
+                </div>
+            </div>
+            
+            <!-- Step 6: Banner Selection -->
+            <div class="step-content" id="step6">
+                <h2>Choose a Banner</h2>
+                <p>Select the perfect banner for your newsletter</p>
+                
+                <div class="loading" id="bannerLoader">
+                    <div class="spinner"></div>
+                    <p>Generating banner variations with AI...</p>
+                    <p>This may take up to 60 seconds</p>
+                </div>
+                
+                <div class="banner-grid" id="bannerOptions"></div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(5)">Back</button>
+                    <button class="btn" onclick="generatePreview()">Preview Newsletter</button>
+                </div>
+            </div>
+            
+            <!-- Step 7: Preview & Download -->
+            <div class="step-content" id="step7">
+                <h2>Preview Your Newsletter</h2>
+                <p>Review your newsletter before downloading</p>
+                
+                <div class="preview-container">
+                    <iframe class="preview-iframe" id="previewFrame"></iframe>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(6)">Back</button>
+                    <button class="btn" onclick="downloadNewsletter()">Download HTML</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Generate session ID
+        const sessionId = 'session_' + Date.now();
+        
+        // Store selected values
+        let selectedTagline = '';
+        let selectedIntro = '';
+        let selectedBanner = '';
+        
+        // Set default dates (today and 7 days from now)
+        window.onload = function() {
+            const today = new Date();
+            const nextWeek = new Date(today);
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            
+            document.getElementById('startDate').value = today.toISOString().split('T')[0];
+            document.getElementById('endDate').value = nextWeek.toISOString().split('T')[0];
+        };
+        
+        function showMessage(message, isError = false) {
+            const successEl = document.getElementById('successMessage');
+            const errorEl = document.getElementById('errorMessage');
+            
+            if (isError) {
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+                setTimeout(() => errorEl.style.display = 'none', 5000);
+            } else {
+                successEl.textContent = message;
+                successEl.style.display = 'block';
+                errorEl.style.display = 'none';
+                setTimeout(() => successEl.style.display = 'none', 5000);
+            }
+        }
+        
+        function goToStep(stepNumber) {
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Show selected step
+            document.getElementById('step' + stepNumber).classList.add('active');
+            
+            // Update indicators
+            document.querySelectorAll('.step').forEach(el => {
+                const step = parseInt(el.dataset.step);
+                el.classList.remove('active', 'completed');
+                if (step < stepNumber) {
+                    el.classList.add('completed');
+                } else if (step === stepNumber) {
+                    el.classList.add('active');
+                }
+            });
+        }
+        
+        async function startScraping() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (!startDate || !endDate) {
+                showMessage('Please select both start and end dates', true);
+                return;
+            }
+            
+            if (new Date(startDate) > new Date(endDate)) {
+                showMessage('Start date must be before end date', true);
+                return;
+            }
+            
+            // Calculate days difference
+            const daysDiff = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
+            if (daysDiff > 30) {
+                showMessage('Date range cannot exceed 30 days', true);
+                return;
+            }
+            
+            goToStep(2);
+            document.getElementById('scrapingLoader').style.display = 'block';
+            document.getElementById('scrapingResults').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/scrape', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-Id': sessionId
+                    },
+                    body: JSON.stringify({
+                        start_date: startDate,
+                        end_date: endDate
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Check for timeout error specifically
+                if (response.status === 504 || data.error === 'timeout') {
+                    document.getElementById('scrapingLoader').style.display = 'none';
+                    showMessage(data.user_message || 'Request timed out. The website is taking too long to respond. Please try again or select different dates.', true);
+                    
+                    // Add a retry button or go back to step 1
+                    setTimeout(() => {
+                        goToStep(1);
+                        // Keep the dates filled for easy retry
+                    }, 3000);
+                } else if (data.success) {
+                    document.getElementById('contentCount').textContent = data.count;
+                    document.getElementById('scrapingLoader').style.display = 'none';
+                    document.getElementById('scrapingResults').style.display = 'block';
+                    showMessage(`Successfully scraped ${data.count} items!`);
+                    
+                    // Store scraped data for content selection
+                    window.scrapedData = data.data;
+                    
+                    // Populate content selection grid
+                    displayContentSelection(data.data);
+                } else {
+                    showMessage(data.error || 'Scraping failed', true);
+                    goToStep(1);
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, true);
+                goToStep(1);
+            }
+        }
+        
+        function displayContentSelection(items) {
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = '';
+            
+            items.forEach((item, index) => {
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'content-item';
+                contentDiv.dataset.index = index;
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `content-${index}`;
+                checkbox.checked = true; // Default to selected
+                checkbox.onchange = updateSelectedCount;
+                
+                const image = document.createElement('img');
+                image.className = 'content-item-image';
+                image.src = item.show_image || 'https://via.placeholder.com/80x60';
+                image.alt = item.name;
+                
+                const details = document.createElement('div');
+                details.className = 'content-item-details';
+                
+                const title = document.createElement('div');
+                title.className = 'content-item-title';
+                title.textContent = item.name;
+                
+                const channel = document.createElement('div');
+                channel.className = 'content-item-channel';
+                channel.textContent = item.channel;
+                
+                const date = document.createElement('div');
+                date.className = 'content-item-date';
+                date.textContent = item.date;
+                
+                details.appendChild(title);
+                details.appendChild(channel);
+                details.appendChild(date);
+                
+                contentDiv.appendChild(checkbox);
+                contentDiv.appendChild(image);
+                contentDiv.appendChild(details);
+                
+                contentDiv.onclick = function(e) {
+                    if (e.target.type !== 'checkbox') {
+                        checkbox.checked = !checkbox.checked;
+                        updateSelectedCount();
+                    }
+                    contentDiv.classList.toggle('selected', checkbox.checked);
+                };
+                
+                // Set initial selected state
+                contentDiv.classList.add('selected');
+                
+                grid.appendChild(contentDiv);
+            });
+            
+            updateSelectedCount();
+        }
+        
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('#contentGrid input[type="checkbox"]');
+            const selected = document.querySelectorAll('#contentGrid input[type="checkbox"]:checked');
+            document.getElementById('selectedCount').textContent = `${selected.length} selected`;
+            
+            // Update visual state
+            checkboxes.forEach(cb => {
+                const item = cb.closest('.content-item');
+                item.classList.toggle('selected', cb.checked);
+            });
+        }
+        
+        function selectAllContent() {
+            const checkboxes = document.querySelectorAll('#contentGrid input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = true);
+            updateSelectedCount();
+        }
+        
+        function deselectAllContent() {
+            const checkboxes = document.querySelectorAll('#contentGrid input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            updateSelectedCount();
+        }
+        
+        async function saveSelectedContent() {
+            const selected = [];
+            const checkboxes = document.querySelectorAll('#contentGrid input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                showMessage('Please select at least one item', true);
+                return;
+            }
+            
+            checkboxes.forEach(cb => {
+                const index = cb.id.replace('content-', '');
+                selected.push(index);
+            });
+            
+            try {
+                const response = await fetch('/api/select-content', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-Id': sessionId
+                    },
+                    body: JSON.stringify({
+                        selected_items: selected
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(`${data.selected_count} items selected for newsletter`);
+                    goToStep(4);
+                    generateTaglines();
+                } else {
+                    showMessage(data.error || 'Failed to save selection', true);
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, true);
+            }
+        }
+        
+        async function generateTaglines() {
+            document.getElementById('taglineLoader').style.display = 'block';
+            document.getElementById('taglineOptions').innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/generate-taglines', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-Id': sessionId
+                    },
+                    body: JSON.stringify({})  // Send empty object to avoid potential issues
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayTaglines(data.taglines);
+                    document.getElementById('taglineLoader').style.display = 'none';
+                } else {
+                    showMessage(data.error || 'Failed to generate taglines', true);
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, true);
+            }
+        }
+        
+        function displayTaglines(taglines) {
+            const container = document.getElementById('taglineOptions');
+            container.innerHTML = '';
+            
+            taglines.forEach((tagline, index) => {
+                const card = document.createElement('div');
+                card.className = 'selection-card';
+                card.innerHTML = `
+                    <label>
+                        <input type="radio" name="tagline" value="${index}">
+                        <span>${tagline}</span>
+                    </label>
+                `;
+                
+                card.onclick = function() {
+                    document.querySelectorAll('#taglineOptions .selection-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    card.classList.add('selected');
+                    card.querySelector('input').checked = true;
+                    selectedTagline = tagline;
+                };
+                
+                container.appendChild(card);
+            });
+            
+            // Select first option by default
+            if (taglines.length > 0) {
+                container.firstChild.click();
+            }
+        }
+        
+        async function regenerateTaglines() {
+            await generateTaglines();
+        }
+        
+        async function generateIntroductions() {
+            if (!selectedTagline) {
+                showMessage('Please select a tagline first', true);
+                return;
+            }
+            
+            goToStep(5);
+            document.getElementById('introLoader').style.display = 'block';
+            document.getElementById('introOptions').innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/generate-intros', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-Id': sessionId
+                    },
+                    body: JSON.stringify({
+                        selected_tagline: selectedTagline
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayIntroductions(data.introductions);
+                    document.getElementById('introLoader').style.display = 'none';
+                } else {
+                    showMessage(data.error || 'Failed to generate introductions', true);
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, true);
+            }
+        }
+        
+        function displayIntroductions(intros) {
+            const container = document.getElementById('introOptions');
+            container.innerHTML = '';
+            
+            intros.forEach((intro, index) => {
+                const card = document.createElement('div');
+                card.className = 'selection-card';
+                card.innerHTML = `
+                    <label>
+                        <input type="radio" name="intro" value="${index}">
+                        <span>${intro}</span>
+                    </label>
+                `;
+                
+                card.onclick = function() {
+                    document.querySelectorAll('#introOptions .selection-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    card.classList.add('selected');
+                    card.querySelector('input').checked = true;
+                    selectedIntro = intro;
+                };
+                
+                container.appendChild(card);
+            });
+            
+            // Select first option by default
+            if (intros.length > 0) {
+                container.firstChild.click();
+            }
+        }
+        
+        async function regenerateIntroductions() {
+            await generateIntroductions();
+        }
+        
+        async function generateBanners() {
+            if (!selectedIntro) {
+                showMessage('Please select an introduction first', true);
+                return;
+            }
+            
+            goToStep(6);
+            document.getElementById('bannerLoader').style.display = 'block';
+            document.getElementById('bannerOptions').innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/generate-banners', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-Id': sessionId
+                    },
+                    body: JSON.stringify({
+                        selected_intro: selectedIntro
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayBanners(data.banners);
+                    document.getElementById('bannerLoader').style.display = 'none';
+                } else {
+                    showMessage(data.error || 'Failed to generate banners', true);
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, true);
+            }
+        }
+        
+        function displayBanners(banners) {
+            const container = document.getElementById('bannerOptions');
+            container.innerHTML = '';
+            
+            banners.forEach((banner, index) => {
+                const card = document.createElement('div');
+                card.className = 'banner-card';
+                card.innerHTML = `<img src="${banner}" alt="Banner ${index + 1}">`;
+                
+                card.onclick = function() {
+                    document.querySelectorAll('#bannerOptions .banner-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    card.classList.add('selected');
+                    selectedBanner = banner;
+                };
+                
+                container.appendChild(card);
+            });
+            
+            // Select first banner by default
+            if (banners.length > 0) {
+                container.firstChild.click();
+            }
+        }
+        
+        async function generatePreview() {
+            if (!selectedBanner) {
+                showMessage('Please select a banner first', true);
+                return;
+            }
+            
+            goToStep(7);
+            
+            try {
+                const response = await fetch('/api/preview', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-Id': sessionId
+                    },
+                    body: JSON.stringify({
+                        selected_banner: selectedBanner
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const iframe = document.getElementById('previewFrame');
+                    iframe.srcdoc = data.html;
+                    
+                    // Store HTML in localStorage as backup
+                    try {
+                        localStorage.setItem('newsletter_html_backup', data.html);
+                        localStorage.setItem('newsletter_session_id', sessionId);
+                        console.log('Newsletter HTML backed up to localStorage');
+                    } catch (e) {
+                        console.warn('Could not backup to localStorage:', e);
+                    }
+                    
+                    // Check for missing channels
+                    if (data.missing_channels && data.missing_channels.length > 0) {
+                        promptForMissingChannels(data.missing_channels);
+                    } else {
+                        showMessage('Newsletter preview generated successfully!');
+                    }
+                } else {
+                    showMessage(data.error || 'Failed to generate preview', true);
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, true);
+            }
+        }
+        
+        async function promptForMissingChannels(missingChannels) {
+            // Create modal for missing channels
+            const modalHtml = `
+                <div id="missingChannelsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+                    <div style="background: white; padding: 30px; border-radius: 10px; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+                        <h3 style="color: #6d3db9; margin-bottom: 20px;">Missing Channel Information</h3>
+                        <p style="margin-bottom: 20px;">The following channels need website information for proper Watch Now links:</p>
+                        <div id="channelInputs">
+                            ${missingChannels.map(channel => `
+                                <div style="margin-bottom: 15px;">
+                                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">${channel}:</label>
+                                    <input type="text" 
+                                           id="channel_${channel.replace(/[^a-zA-Z0-9]/g, '_')}" 
+                                           placeholder="Enter website (e.g., pbs.org)" 
+                                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top: 20px; text-align: right;">
+                            <button onclick="closeChannelModal()" style="padding: 10px 20px; margin-right: 10px; background: #ccc; color: white; border: none; border-radius: 5px; cursor: pointer;">Skip</button>
+                            <button onclick="saveChannelWebsites()" style="padding: 10px 20px; background: #6d3db9; color: white; border: none; border-radius: 5px; cursor: pointer;">Save</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal to page
+            const modalDiv = document.createElement('div');
+            modalDiv.innerHTML = modalHtml;
+            document.body.appendChild(modalDiv);
+            
+            // Store missing channels globally for save function
+            window.currentMissingChannels = missingChannels;
+            
+            showMessage(`${missingChannels.length} channel(s) need website information. Please provide the details.`, true);
+        }
+        
+        window.closeChannelModal = function() {
+            const modal = document.getElementById('missingChannelsModal');
+            if (modal) {
+                modal.parentElement.remove();
+            }
+            showMessage('Skipped adding channel websites. Using default links for missing channels.');
+        }
+        
+        window.saveChannelWebsites = async function() {
+            const channels = window.currentMissingChannels;
+            let successCount = 0;
+            
+            for (const channel of channels) {
+                const inputId = `channel_${channel.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                const input = document.getElementById(inputId);
+                const website = input.value.trim();
+                
+                if (website) {
+                    try {
+                        const response = await fetch('/api/add-channel-website', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Session-Id': sessionId
+                            },
+                            body: JSON.stringify({
+                                channel: channel,
+                                website: website,
+                                country: 'US'
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        if (data.success) {
+                            successCount++;
+                        }
+                    } catch (error) {
+                        console.error(`Error adding ${channel}:`, error);
+                    }
+                }
+            }
+            
+            closeChannelModal();
+            
+            if (successCount > 0) {
+                showMessage(`Successfully added ${successCount} channel website(s). Regenerating preview...`);
+                // Regenerate preview to use new links
+                setTimeout(() => generatePreview(), 1000);
+            } else {
+                showMessage('No channel websites were added.');
+            }
+        }
+        
+        async function downloadNewsletter() {
+            try {
+                console.log('Downloading with session ID:', sessionId);
+                
+                const response = await fetch('/api/download', {
+                    method: 'GET',
+                    headers: {
+                        'X-Session-Id': sessionId
+                    }
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `newsletter_${new Date().toISOString().split('T')[0]}.html`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showMessage('Newsletter downloaded successfully!');
+                } else {
+                    const data = await response.json();
+                    console.error('Download failed:', data);
+                    
+                    // Try to use localStorage backup if session was lost
+                    if (data.error && data.error.includes('session')) {
+                        const backupHtml = localStorage.getItem('newsletter_html_backup');
+                        const backupSessionId = localStorage.getItem('newsletter_session_id');
+                        
+                        if (backupHtml && backupSessionId === sessionId) {
+                            console.log('Using localStorage backup for download');
+                            
+                            // Create download from backup
+                            const blob = new Blob([backupHtml], { type: 'text/html' });
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `newsletter_${new Date().toISOString().split('T')[0]}.html`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            showMessage('Newsletter downloaded successfully from backup!');
+                            return;
+                        } else {
+                            // Suggest regenerating preview
+                            setTimeout(() => {
+                                if (confirm('Session expired and no backup found. Would you like to regenerate the preview?')) {
+                                    generatePreview();
+                                }
+                            }, 1000);
+                        }
+                    }
+                    
+                    // Show detailed error message
+                    if (data.details) {
+                        showMessage(`${data.error}\n${data.details}`, true);
+                    } else {
+                        showMessage(data.error || 'Failed to download newsletter', true);
+                    }
+                }
+            } catch (error) {
+                console.error('Download error:', error);
+                showMessage('Error: ' + error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>
