@@ -30,7 +30,7 @@ The **Automated Streaming Newsletter** is an innovative Flask-based web applicat
 5. **Responsive Design**: Generated newsletters are automatically optimized for all devices
 <img width="253" height="648" alt="Screenshot 2025-08-24 at 8 23 57 AM" src="https://github.com/user-attachments/assets/7bf5e276-f758-414b-81b8-822b2ca2a182" />
 
-https://github.com/user-attachments/assets/8c341c04-283b-4f36-9833-1e312d81f9f7"
+https://github.com/user-attachments/assets/8c341c04-283b-4f36-9833-1e312d81f9f7
 
 
 
